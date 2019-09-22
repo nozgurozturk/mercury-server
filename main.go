@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"handlers"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"

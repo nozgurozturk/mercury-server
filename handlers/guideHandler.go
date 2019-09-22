@@ -1,16 +1,17 @@
 package handlers
 
 import (
-"encoding/json"
-"models"
-"net/http"
+	"encoding/json"
+	"net/http"
 
-"github.com/gorilla/mux"
+	"models"
+
+	"github.com/gorilla/mux"
 )
 
 var guides []models.Guide
 
-var CreateGuide = func (w http.ResponseWriter, r *http.Request) {
+var CreateGuide = func(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	var guide models.Guide
