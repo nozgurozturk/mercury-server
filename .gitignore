@@ -12,3 +12,5 @@
 *.out
 
 # Dependency directories 
+
+src/github.com
