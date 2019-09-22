@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
-	"handlers"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/nozgurozturk/startpage_server/handlers"
+	"github.com/nozgurozturk/startpage_server/models"
 )
+
+var pages []models.Page
 
 func main() {
 	// Create Router
@@ -19,6 +22,6 @@ func main() {
 	r.HandleFunc("/api/pages/{id}", handlers.UpdatePage).Methods("PUT")
 	r.HandleFunc("/api/pages/{id}", handlers.GetPage).Methods("GET")
 	// Server is started on localhost:8000
-	fmt.Printf("Server is 🚀  on 8000")
+	fmt.Printf("Server is 🚀 on 8000")
 	log.Fatal(http.ListenAndServe(":8000", r))
 }

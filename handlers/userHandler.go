@@ -1,16 +1,16 @@
 package handlers
 
 import (
-"encoding/json"
-"models"
-"net/http"
+	"encoding/json"
+	"net/http"
 
-"github.com/gorilla/mux"
+	"github.com/gorilla/mux"
+	"github.com/nozgurozturk/startpage_server/models"
 )
 
 var users []models.User
 
-var CreateUser= func(w http.ResponseWriter, r *http.Request) {
+var CreateUser = func(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	var user models.User
@@ -18,12 +18,12 @@ var CreateUser= func(w http.ResponseWriter, r *http.Request) {
 	users = append(users, user)
 	json.NewEncoder(w).Encode(user)
 }
-var GetUsers= func(w http.ResponseWriter, r *http.Request) {
+var GetUsers = func(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "aplication/json")
 	json.NewEncoder(w).Encode(users)
 }
-var GetUser= func(w http.ResponseWriter, r *http.Request) {
+var GetUser = func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
 	params := mux.Vars(r)
 	for _, user := range users {
@@ -33,7 +33,7 @@ var GetUser= func(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(&models.User{})
 }
-var UpdateUser= func(w http.ResponseWriter, r *http.Request) {
+var UpdateUser = func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
 	params := mux.Vars(r)
 	for index, item := range users {
@@ -50,7 +50,7 @@ var UpdateUser= func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
-var DeleteUser= func(w http.ResponseWriter, r *http.Request) {
+var DeleteUser = func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
 	params := mux.Vars(r)
 	for index, item := range users {

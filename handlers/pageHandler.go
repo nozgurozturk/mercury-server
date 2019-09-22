@@ -1,11 +1,11 @@
 package handlers
 
 import (
-"encoding/json"
-"models"
-"net/http"
+	"encoding/json"
+	"net/http"
 
-"github.com/gorilla/mux"
+	"github.com/gorilla/mux"
+	"github.com/nozgurozturk/startpage_server/models"
 )
 
 var pages []models.Page
@@ -15,12 +15,11 @@ var CreatePage = func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var page models.Page
 	_ = json.NewDecoder(r.Body).Decode(&page)
-	page.ID = "02"
 	pages = append(pages, page)
 	json.NewEncoder(w).Encode(page)
 }
-var GetPages= func(w http.ResponseWriter, r *http.Request) {
-
+var GetPages = func(w http.ResponseWriter, r *http.Request) {
+	pages = append(pages, models.Page{ID: "01", Name: "Google", Link: "https://www.google.com"})
 	w.Header().Set("Content-Type", "aplication/json")
 	json.NewEncoder(w).Encode(pages)
 }
@@ -51,7 +50,7 @@ var UpdatePage = func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(pages)
 }
 
-var DeletePage= func(w http.ResponseWriter, r *http.Request) {
+var DeletePage = func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
 	params := mux.Vars(r)
 	for index, item := range pages {

@@ -1,16 +1,17 @@
 package handlers
 
 import (
-"encoding/json"
-"models"
-"net/http"
+	"encoding/json"
+	"net/http"
 
-"github.com/gorilla/mux"
+	"github.com/nozgurozturk/startpage_server/models"
+
+	"github.com/gorilla/mux"
 )
 
 var projects []models.Project
 
-var CreateProject= func(w http.ResponseWriter, r *http.Request) {
+var CreateProject = func(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	var project models.Project
@@ -18,7 +19,7 @@ var CreateProject= func(w http.ResponseWriter, r *http.Request) {
 	projects = append(projects, project)
 	json.NewEncoder(w).Encode(project)
 }
-var GetProjects= func(w http.ResponseWriter, r *http.Request) {
+var GetProjects = func(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "aplication/json")
 	json.NewEncoder(w).Encode(projects)
@@ -50,7 +51,7 @@ var UpdateProject = func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(projects)
 }
 
-var DeleteProject= func(w http.ResponseWriter, r *http.Request) {
+var DeleteProject = func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
 	params := mux.Vars(r)
 	for index, item := range projects {
