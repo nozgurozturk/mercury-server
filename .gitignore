@@ -13,4 +13,5 @@
 
 # Dependency directories 
 
-src/github.com
+# Enviroment
+.env

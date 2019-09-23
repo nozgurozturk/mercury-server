@@ -8,8 +8,8 @@ import (
 // User Model
 type Page struct {
 	gorm.Model
-	ID     string
+	id     uint `gorm:"primary_key"`
 	Name   string
 	Link   string
-	UserID string
+	UserID uint
 }
