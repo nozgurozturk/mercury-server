@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -19,8 +20,9 @@ var CreatePage = func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(page)
 }
 var GetPages = func(w http.ResponseWriter, r *http.Request) {
-	pages = append(pages, models.Page{ID: "01", Name: "Google", Link: "https://www.google.com"})
-	w.Header().Set("Content-Type", "aplication/json")
+	// w.Header().Set("Content-Type", "aplication/json")
+	models.GetDB().Find(&users)
+	fmt.Print(models.GetDB().Find(&users))
 	json.NewEncoder(w).Encode(pages)
 }
 var GetPage = func(w http.ResponseWriter, r *http.Request) {
