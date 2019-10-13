@@ -7,31 +7,30 @@ import (
 )
 
 type Content struct {
-	gorm.Model
 	ID        uint32    `gorm:"primary_key;auto_increment" json:"id"`
 	Owner     User      `json:"owner"`
-	OwnerId   uint32    `gorm:"not null" json:"owner_id"`
-	Title     string    `gorm:"type:varchar(40);not_null;" json:"name"`
-	Link      string    `gorm:"type:varchar(60);not_null;unique;" json:"email"`
-	TestLink  string    `gorm:"type:varchar(70);" json:"password"`
+	OwnerId   uint32    `gorm:"not null;" json:"owner_id"`
+	Title     string    `gorm:"type:varchar(40);not_null;" json:"title"`
+	Link      string    `gorm:"type:varchar(60);not_null;unique;" json:"link"`
+	TestLink  string    `gorm:"type:varchar(70);" json:"test_link"`
 	Type      string    `gorm:"type:varchar(70);not_null;" json:"type"`
-	CreatedAt time.Time `gorm:default:"CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt time.Time `gorm:default:"CURRENT_TIMESTAMP" json:"updated_at"`
+	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
 func (c *Content) Validate() error{
 
 	if c.Link == "" {
-		return  errors.New("link is required")
+		return  errors.New("required link")
 	}
 	if c.Title == ""{
-		return errors.New("title is required")
+		return errors.New("required title")
 	}
 	if c.Type == ""{
-		return errors.New("type is required")
+		return errors.New("required type")
 	}
 	if c.OwnerId < 1 {
-		return errors.New("invalid")
+		return errors.New("required owner")
 	}
 	return  nil
 }
@@ -44,7 +43,7 @@ func (c *Content) SaveContent(db *gorm.DB) (*Content, error) {
 		return &Content{}, err
 	}
 	if c.ID != 0 {
-		err = db.Debug().Model(&User{}).Where("id = ?", c.OwnerId).Take(&c.Owner).Error
+		err = db.Debug().Model(&User{}).Where("id = ?", c.OwnerId).First(&c.Owner).Error
 		if err != nil {
 			return &Content{}, err
 		}
@@ -52,7 +51,7 @@ func (c *Content) SaveContent(db *gorm.DB) (*Content, error) {
 	return c, nil
 }
 
-func (c *Content) GetAllContent(db *gorm.DB) (*[]Content, error) {
+func (c *Content) FindAllContent(db *gorm.DB) (*[]Content, error) {
 	var err error
 	contents := []Content{}
 	err = db.Debug().Model(&Content{}).Limit(50).Find(&contents).Error

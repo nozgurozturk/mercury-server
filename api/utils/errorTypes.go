@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func Errors(err string) error {
+func ErrorType(err string) error {
 
 	if strings.Contains(err, "email") {
 		return errors.New("email already taken")
