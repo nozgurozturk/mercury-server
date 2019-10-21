@@ -2,10 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/nozgurozturk/startpage_server/api/auth"
 	"github.com/nozgurozturk/startpage_server/api/models"
 	"github.com/nozgurozturk/startpage_server/api/utils"
 	"io/ioutil"
@@ -13,43 +11,29 @@ import (
 	"strconv"
 )
 
-func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request){
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil{
+func (server *Server) SignUp(w http.ResponseWriter, r *http.Request){
+
+	user := &models.User{}
+	_ = user.BeforeSave()
+
+	err := json.NewDecoder(r.Body).Decode(user) //decode the request body into struct and failed if any error occur
+	if err != nil {
+		utils.Respond(w, http.StatusUnprocessableEntity, utils.Message(false, "Invalid request"))
+		return
+	}
+
+	err = user.Validate()
+	if err != nil {
 		utils.ERROR(w, http.StatusUnprocessableEntity, err)
-	}
-	user := models.User{}
-	err = json.Unmarshal(body, &user)
-	if err !=nil{
-		utils.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	err = user.Validate("")
+
+	resp, err := user.SaveUser(server.DB) //Create account
 	if err != nil{
-		utils.ERROR(w, http.StatusUnprocessableEntity, err)
+		utils.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-	userCreated, err := user.SaveUser(server.DB)
-
-	if err != nil{
-
-		formattedError := utils.ErrorType(err.Error())
-		utils.ERROR(w, http.StatusInternalServerError, formattedError)
-		return
-	}
-
-	w.Header().Set("Location", fmt.Sprintf("%s%s/%d" , r.Host, r.RequestURI, userCreated))
-	utils.JSON(w, http.StatusCreated, userCreated)
-}
-
-func (server *Server) GetUsers(w http.ResponseWriter, r *http.Request){
-	user := models.User{}
-	users, err := user.FindAllUsers(server.DB)
-	if err != nil{
-		utils.ERROR(w, http.StatusInternalServerError, err)
-		return
-	}
-	utils.JSON(w, http.StatusOK, users)
+	utils.Respond(w, http.StatusOK, resp)
 }
 
 func (server *Server) GetUser (w http.ResponseWriter, r *http.Request){
@@ -66,7 +50,7 @@ func (server *Server) GetUser (w http.ResponseWriter, r *http.Request){
 		utils.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-	utils.JSON(w, http.StatusOK, selectedUser)
+	utils.Respond(w, http.StatusOK, selectedUser)
 }
 
 func (server *Server) UpdateUser (w http.ResponseWriter, r *http.Request){
@@ -87,16 +71,8 @@ func (server *Server) UpdateUser (w http.ResponseWriter, r *http.Request){
 		utils.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	tokenID ,err := auth.ExtractTokenID(r)
-	if err != nil{
-		utils.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-		return
-	}
-	if tokenID != uint32(uid){
-		utils.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
-		return
-	}
-	err = user.Validate("update")
+
+	err = user.Validate()
 	if err != nil{
 		utils.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
@@ -107,7 +83,7 @@ func (server *Server) UpdateUser (w http.ResponseWriter, r *http.Request){
 		utils.ERROR(w, http.StatusInternalServerError, formattedError)
 		return
 	}
-	utils.JSON(w, http.StatusOK, updatedUser)
+	utils.Respond(w, http.StatusOK, updatedUser)
 }
 
 func (server *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -121,20 +97,12 @@ func (server *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		utils.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-	tokenID, err := auth.ExtractTokenID(r)
-	if err != nil {
-		utils.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-		return
-	}
-	if tokenID != 0 && tokenID != uint32(uid) {
-		utils.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
-		return
-	}
+
 	_, err = user.DeleteUser(server.DB, uint32(uid))
 	if err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
 	w.Header().Set("Entity", fmt.Sprintf("%d", uid))
-	utils.JSON(w, http.StatusNoContent, "")
+	utils.Respond(w, http.StatusNoContent, "")
 }

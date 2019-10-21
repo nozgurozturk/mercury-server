@@ -2,53 +2,59 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/nozgurozturk/startpage_server/api/auth"
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/jinzhu/gorm"
 	"github.com/nozgurozturk/startpage_server/api/models"
 	"github.com/nozgurozturk/startpage_server/api/utils"
 	"golang.org/x/crypto/bcrypt"
-	"io/ioutil"
 	"net/http"
+	"os"
 )
 
+func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
+	user := &models.User{}
 
-func (server *Server) Login(w http.ResponseWriter, r *http.Request){
-	body, err := ioutil.ReadAll(r.Body)
+	err := json.NewDecoder(r.Body).Decode(user) //decode the request body into struct and failed if any error occur
 	if err != nil {
-		utils.ERROR(w, http.StatusUnprocessableEntity, err)
+		utils.Respond(w, http.StatusUnprocessableEntity, utils.Message(false, "Invalid request"))
 		return
 	}
-	user := models.User{}
-	err = json.Unmarshal(body, &user)
-	if err != nil {
-		utils.ERROR(w, http.StatusUnprocessableEntity, err)
-		return
-	}
-	err = user.Validate("login")
-	if err != nil {
-		utils.ERROR(w, http.StatusUnprocessableEntity, err)
-		return
-	}
-	token, err := server.SignIn(user.Email, user.Password)
-	if err != nil {
-		formattedError := utils.ErrorType(err.Error())
-		utils.ERROR(w, http.StatusUnprocessableEntity, formattedError)
-		return
-	}
-	utils.JSON(w, http.StatusOK, token)
+	resp,err := server.SignIn(user.Email, user.Password)
+
+	utils.Respond(w, http.StatusOK, resp)
 }
 
-func (server *Server) SignIn(email, password string) (string, error) {
-	var err error
+func (server *Server) SignIn(email, password string) (map[string]interface{}, error) {
 
-	user := models.User{}
-
-	err = server.DB.Debug().Model(models.User{}).Where("email = ?", email).First(&user).Error
+	user := &models.User{}
+	err := server.DB.Table("users").Where("email = ?", email).First(user).Error
 	if err != nil {
-		return "", err
+		if err == gorm.ErrRecordNotFound {
+			return utils.Message(false, "Email address not found"), err
+
+		}
+		return utils.Message(false, "Connection Error"), err
 	}
-	err = models.VerifyPass(user.Password, password)
-	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
-		return "", err
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil  { //Password does not match!
+		fmt.Println(err)
+		return utils.Message(false, "Invalid login credentials"), err
 	}
-	return auth.CreateToken(user.ID)
+	//Worked! Logged In
+	user.Password = ""
+
+	//Create JWT token
+	tk := &models.Token{UserID: user.ID}
+	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
+	tokenString, _ := token.SignedString([]byte(os.Getenv("API_SECRET")))
+	user.Token = tokenString //Store the token in the response
+
+	resp := utils.Message(true, "Logged In")
+	resp["user"] = user
+	return resp, err
 }
+
+
+

@@ -6,6 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/joho/godotenv"
+	"github.com/nozgurozturk/startpage_server/api/auth"
 	"github.com/nozgurozturk/startpage_server/api/models"
 	"log"
 	"net/http"
@@ -34,14 +35,15 @@ func (server *Server) Initialize (){
 	if err != nil{
 		fmt.Print(err)
 	}
-	server.DB.Debug().AutoMigrate(&models.User{}, &models.Content{})
+	server.DB.Debug().AutoMigrate(&models.User{}, &models.Board{}, &models.Item{}, &models.Link{})
 
-	server.Router = mux.NewRouter()
-
-	server.initializeRoutes()
 }
 
 func (server *Server) Run(port string) {
+	server.Router = mux.NewRouter()
+	server.initializeRoutes()
+
+	server.Router.Use(auth.JwtAuthentication)
 
 	fmt.Println("🚀 on" + port)
 	log.Fatal(http.ListenAndServe(port, server.Router))
