@@ -8,114 +8,76 @@ import (
 
 type Item struct {
 	ID        uint32    `gorm:"primary_key;auto_increment" json:"id"`
-	Board     Board     `json:"board"`
 	BoardID   uint32    `gorm:"not null;" json:"board_id"`
 	Name      string    `gorm:"type:varchar(40);not_null;" json:"name"`
-	Links     []Link    `json:"links"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
 func (i *Item) Validate() error {
 
-	if i.Link == "" {
-		return errors.New("required link")
+	if i.Name == "" {
+		return errors.New("required name")
 	}
-	if c.Title == "" {
-		return errors.New("required title")
-	}
-	if c.Type == "" {
-		return errors.New("required type")
-	}
-	if c.OwnerId < 1 {
-		return errors.New("required owner")
+	if i.BoardID < 1 {
+		return errors.New("required board")
 	}
 	return nil
 }
 
-func (c *Content) SaveContent(db *gorm.DB) (*Content, error) {
+func (i *Item) SaveItem(db *gorm.DB) (*Item, error) {
 	var err error
-	err = db.Debug().Model(&Content{}).Create(&c).Error
+	err = db.Debug().Model(&Item{}).Create(&i).Error
 	if err != nil {
-		return &Content{}, err
+		return &Item{}, err
 	}
-	if c.ID != 0 {
-		err = db.Debug().Model(&User{}).Where("id = ?", c.OwnerId).First(&c.Owner).Error
-		if err != nil {
-			return &Content{}, err
-		}
-	}
-	return c, nil
+	return i, nil
 }
 
-func (c *Content) FindAllContent(db *gorm.DB) (*[]Content, error) {
+func (i *Item) FindAllItem(db *gorm.DB) (*[]Item, error) {
 	var err error
-	contents := []Content{}
-	err = db.Debug().Model(&Content{}).Limit(50).Find(&contents).Error
+	var items []Item
+	err = db.Debug().Model(&Item{}).Find(&items).Error
 	if err != nil {
-		return &[]Content{}, err
+		return &items, err
 	}
-	if len(contents) > 0 {
-		for i, _ := range contents {
-			err = db.Debug().Model(&User{}).Where("id = ?", contents[i].OwnerId).Find(&contents).Error
-			if err != nil {
-				return &[]Content{}, err
-			}
-		}
-	}
-	return &contents, err
+	return &items, err
 }
-func (c *Content) FindContent(db *gorm.DB, cid uint32) (*Content, error) {
+func (i *Item) FindItem(db *gorm.DB, iid uint32) (*Item, error) {
 	var err error
-	err = db.Debug().Model(Content{}).Where("id = ?", cid).First(&c).Error
+	err = db.Debug().Model(Item{}).Where("id = ?", iid).First(&i).Error
 	if err != nil {
-		return &Content{}, err
-	}
-	if c.ID != 0 {
-		err = db.Debug().Model(User{}).Where("id = ?", c.OwnerId).First(&c.Owner).Error
-		if err != nil {
-			return &Content{}, err
-		}
+		return &Item{}, err
 	}
 	if gorm.IsRecordNotFoundError(err) {
-		return &Content{}, errors.New("Content Not Found")
+		return &Item{}, errors.New("item not found")
 	}
-	return c, nil
+	return i, nil
 }
 
-func (c *Content) UpdateContent(db *gorm.DB, cid uint32) (*Content, error) {
+func (i *Item) UpdateItem(db *gorm.DB, iid uint32) (*Item, error) {
 	var err error
 
-	db = db.Debug().Model(Content{}).Where("id = ?", cid).First(&Content{}).UpdateColumns(
+	db = db.Debug().Model(Item{}).Where("id = ?", iid).First(&Item{}).UpdateColumns(
 		map[string]interface{}{
-			"title":     c.Title,
-			"link":      c.Link,
-			"test_link": c.TestLink,
-			"type":      c.Type,
+			"name":     i.Name,
 			"update_at": time.Now(),
 		},
 	)
-	err = db.Debug().Model(&Content{}).Where("id = ?", cid).First(&c).Error
-	if db.Error != nil {
-		return &Content{}, db.Error
-	}
-	if c.ID != 0 {
-		err = db.Debug().Model(&User{}).Where("id = ?", c.OwnerId).Find(&c.Owner).Error
-		if err != nil {
-
-			return &Content{}, err
-		}
+	err = db.Debug().Model(&Item{}).Where("id = ?", iid).First(&i).Error
+	if err != nil {
+		return &Item{}, db.Error
 	}
 
-	return c, nil
+	return i, nil
 }
 
-func (c *Content) DeleteContent(db *gorm.DB, cid uint32, uid uint32) (int64, error) {
+func (i *Item) DeleteItem(db *gorm.DB, iid uint32) (int64, error) {
 
-	db = db.Debug().Model(&Content{}).Where("id = ? and owner_id = ?", cid, uid).First(&c).Delete(&Content{})
+	db = db.Debug().Model(&Item{}).Where("id = ? ", iid).First(&i).Delete(&Item{})
 	if db.Error != nil {
 		if gorm.IsRecordNotFoundError(db.Error) {
-			return 0, errors.New("Content Not Found")
+			return 0, errors.New("item not found")
 		}
 		return 0, db.Error
 	}
