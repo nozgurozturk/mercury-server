@@ -2,27 +2,35 @@ package utils
 
 import (
 	"encoding/json"
-	"net/http"
+	"errors"
 	"fmt"
+	"net/http"
+	"strings"
 )
 
-func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
+func Message(status bool, message string) map[string]interface{} {
+return map[string]interface{} {"status" : status, "message" : message}
+}
+
+func Respond(w http.ResponseWriter, statusCode int, data interface{})  {
 	w.WriteHeader(statusCode)
-	err := json.NewEncoder(w).Encode(data)
+	w.Header().Add("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(data)
+}
+
+func ERROR (w http.ResponseWriter, statusCode int, err error){
+	w.WriteHeader(statusCode)
 	if err != nil {
-		_, _ = fmt.Fprintf(w, "%s", err.Error())
+		fmt.Print(err.Error())
 	}
 }
 
-func ERROR(w http.ResponseWriter, statusCode int, err error) {
-	if err != nil {
-		JSON(w, statusCode, struct {
-			Error string `json:"error"`
-		}{
-			Error: err.Error(),
-		})
-		return
+func ErrorType(err string) error {
+	if strings.Contains(err, "email") {
+		return errors.New("email Already Taken")
 	}
-	JSON(w, http.StatusBadRequest, nil)
+	if strings.Contains(err, "hashedPassword") {
+		return errors.New("incorrect Password")
+	}
+	return errors.New("incorrect Details")
 }
-
