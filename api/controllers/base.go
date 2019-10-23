@@ -36,7 +36,6 @@ func (server *Server) Initialize (){
 		fmt.Print(err)
 	}
 	server.DB.Debug().AutoMigrate(&models.User{}, &models.Board{}, &models.Item{}, &models.Link{})
-
 }
 
 func (server *Server) Run(port string) {

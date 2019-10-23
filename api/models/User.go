@@ -21,7 +21,7 @@ type User struct {
 	Email     string    `gorm:"type:varchar(120);not_null;unique;" json:"email"`
 	Password  string    `gorm:"type:varchar(60);not_null;" json:"password"`
 	Token     string    `json:"token";sql:"-"`
-	Boards    []Board   `gorm:"foreignkey:UserID;" json:"boards"`
+	Boards    []Board   `gorm:"foreignkey:UserID;association_foreignkey:ID" json:"boards"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }

@@ -8,8 +8,9 @@ import (
 
 type Board struct {
 	ID        uint32 `gorm:"primary_key;auto_increment" json:"id"`
-	UserID    uint32 `gorm:"not null;" json:"user_id"`
+	UserID    uint32 `gorm:"index;" json:"user_id"`
 	Name      string `gorm:"type:varchar(40);not_null;" json:"name"`
+	Items     []Item  `gorm:"foreignkey:BoardID;association_foreignkey:ID" json:"items"`
 	CreatedAt Time   `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt Time   `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
@@ -37,7 +38,7 @@ func (b *Board) SaveBoard(db *DB) (*Board, error) {
 func (b *Board) FindAllBoard(db *DB, uid uint32) (*[]Board, error) {
 	var err error
 	var boards []Board
-	err = db.Debug().Model(&Board{}).Where("user_id = ?", uid).Find(&boards).Error
+	err = db.Debug().Model(&User{ID:uid}).Related(&boards).Error
 	if err != nil {
 		return &[]Board{}, err
 	}

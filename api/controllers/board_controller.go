@@ -24,7 +24,6 @@ func (server *Server) CreateBoard (w http.ResponseWriter, r *http.Request){
 	user := r.Context().Value("user").(uint32)
 	board := &models.Board{}
 	board.UserID = user
-	fmt.Println(user)
 	err = json.Unmarshal(body, board)
 	if err != nil{
 		utils.ERROR(w, http.StatusUnprocessableEntity, err)
