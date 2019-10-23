@@ -10,7 +10,7 @@ type Link struct {
 	ID        uint32    `gorm:"primary_key;auto_increment" json:"id"`
 	Name	  string    `gorm:"type:varchar(10);not_null;" json:"name"`
 	URL       string    `gorm:"type:varchar(120);not_null:" json:"url"`
-	ItemID    uint32    `gorm:"not_null" json:"item_id"`
+	ItemID    uint32    `gorm:"index;not_null" json:"item_id"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
@@ -35,10 +35,10 @@ func (l *Link) SaveLink(db *gorm.DB) (*Link, error) {
 	return l, nil
 }
 
-func (l *Link) FindAllLink(db *gorm.DB) (*[]Link, error) {
+func (l *Link) FindAllLink(db *gorm.DB, iid uint32) (*[]Link, error) {
 	var err error
 	var links []Link
-	err = db.Debug().Model(&Link{}).Find(&links).Error
+	err = db.Debug().Model(&Item{ID:iid}).Related(&links).Error
 	if err != nil {
 		return &links, err
 	}

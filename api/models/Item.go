@@ -8,8 +8,9 @@ import (
 
 type Item struct {
 	ID        uint32    `gorm:"primary_key;auto_increment" json:"id"`
-	BoardID   uint32    `gorm:"not null;" json:"board_id"`
+	BoardID   uint32    `gorm:"index;not_null;" json:"board_id"`
 	Name      string    `gorm:"type:varchar(40);not_null;" json:"name"`
+	Links     []Link    `gorm:"foreignkey:ItemID:association_foreignkey:ID"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
@@ -34,10 +35,10 @@ func (i *Item) SaveItem(db *gorm.DB) (*Item, error) {
 	return i, nil
 }
 
-func (i *Item) FindAllItem(db *gorm.DB) (*[]Item, error) {
+func (i *Item) FindAllItem(db *gorm.DB, bid uint32) (*[]Item, error) {
 	var err error
 	var items []Item
-	err = db.Debug().Model(&Item{}).Find(&items).Error
+	err = db.Debug().Model(&Board{ID:bid}).Related(&items).Error
 	if err != nil {
 		return &items, err
 	}
@@ -45,7 +46,8 @@ func (i *Item) FindAllItem(db *gorm.DB) (*[]Item, error) {
 }
 func (i *Item) FindItem(db *gorm.DB, iid uint32) (*Item, error) {
 	var err error
-	err = db.Debug().Model(Item{}).Where("id = ?", iid).First(&i).Error
+	err = db.Preload("Links").First(&i, iid).Error
+	//err = db.Debug().Model(Item{}).Where("id = ?", iid).First(&i).Error
 	if err != nil {
 		return &Item{}, err
 	}

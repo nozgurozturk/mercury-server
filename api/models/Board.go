@@ -38,7 +38,7 @@ func (b *Board) SaveBoard(db *DB) (*Board, error) {
 func (b *Board) FindAllBoard(db *DB, uid uint32) (*[]Board, error) {
 	var err error
 	var boards []Board
-	err = db.Debug().Model(&User{ID:uid}).Related(&boards).Error
+	err = db.Debug().Preload("Items").Model(&User{ID:uid}).Related(&boards).Error
 	if err != nil {
 		return &[]Board{}, err
 	}
@@ -47,7 +47,7 @@ func (b *Board) FindAllBoard(db *DB, uid uint32) (*[]Board, error) {
 
 func (b *Board) FindBoard(db *DB, bid uint32) (*Board, error) {
 	var err error
-	err = db.Debug().Model(Board{}).Where("id = ?", bid).First(&b).Error
+	err = db.Preload("Items").First(&b, bid).Error
 	if err != nil {
 		return &Board{}, err
 	}
