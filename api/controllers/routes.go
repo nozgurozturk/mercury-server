@@ -36,7 +36,7 @@ func (server *Server) boardRoutes() {
 func (server *Server) itemRoutes() {
 
 	server.Router.HandleFunc("/item", server.CreateItem).Methods("POST")
-	server.Router.HandleFunc("/item", server.GetItems).Methods("GET")
+	server.Router.HandleFunc("/board/{id}/item", server.GetItems).Methods("GET")
 	server.Router.HandleFunc("/item/{id}", server.GetItem).Methods("GET")
 	server.Router.HandleFunc("/item/{id}", server.UpdateItem).Methods("PUT")
 	server.Router.HandleFunc("/item/{id}", server.DeleteItem).Methods("DELETE")
@@ -46,7 +46,7 @@ func (server *Server) itemRoutes() {
 func (server *Server) linkRoutes() {
 
 	server.Router.HandleFunc("/link", server.CreateLink).Methods("POST")
-	server.Router.HandleFunc("/link", server.GetLinks).Methods("GET")
+	server.Router.HandleFunc("/items/{id}/link", server.GetLinks).Methods("GET")
 	server.Router.HandleFunc("/link/{id}", server.GetLink).Methods("GET")
 	server.Router.HandleFunc("/link/{id}", server.UpdateLink).Methods("PUT")
 	server.Router.HandleFunc("/link/{id}", server.DeleteLink).Methods("DELETE")

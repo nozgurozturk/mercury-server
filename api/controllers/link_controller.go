@@ -40,10 +40,17 @@ func (server *Server) CreateLink (w http.ResponseWriter, r *http.Request){
 }
 
 func (server *Server) GetLinks (w http.ResponseWriter, r *http.Request){
+	vars := mux.Vars(r)
+	iid,err := strconv.ParseInt(vars["id"], 10, 64)
+
+	if  err != nil {
+		utils.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
 	link := models.Link{}
-	links, err :=link.FindAllLink(server.DB)
+	links, err :=link.FindAllLink(server.DB, uint32(iid))
 	if err != nil {
-		utils.ERROR(w, http.StatusInternalServerError, err)
+		utils.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
 	utils.Respond(w, http.StatusOK, links)

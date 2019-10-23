@@ -59,7 +59,6 @@ func (server *Server) GetBoards (w http.ResponseWriter, r *http.Request){
 
 func (server *Server) GetBoard (w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
-
 	bid, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
 		utils.ERROR(w, http.StatusBadRequest, err)
