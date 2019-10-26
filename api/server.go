@@ -19,7 +19,7 @@ func Start() {
 
 	port := os.Getenv("SERVER_PORT")
 	if port == ""{
-		port = ":8000"
+		port = "8000"
 	}
 	server.Run(port)
 }
