@@ -44,8 +44,8 @@ func (server *Server) Run(port string) {
 
 	server.Router.Use(auth.JwtAuthentication)
 
-	fmt.Println("🚀 on" + port)
-	log.Fatal(http.ListenAndServe(":"+port, server.Router))
+	fmt.Println("🚀 on " + port)
+	log.Fatal(http.ListenAndServe(port, server.Router))
 }
 
 
