@@ -9,7 +9,7 @@ func (server *Server) initializeRoutes() {
 }
 
 func (server *Server) loginRoute() {
-
+	server.Router.HandleFunc("/", server.Home).Methods("GET")
 	server.Router.HandleFunc("/login", server.Login).Methods("POST")
 	server.Router.HandleFunc("/signup", server.SignUp).Methods("POST")
 

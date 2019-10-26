@@ -24,7 +24,7 @@ func (server *Server) Initialize (){
 		fmt.Print(e)
 	}
 	host := os.Getenv("HOST")
-	port := os.Getenv("PORT")
+	port := os.Getenv("DB_PORT")
 	username := os.Getenv("USER_NAME")
 	password := os.Getenv("PASSWORD")
 	dbName := os.Getenv("DB_NAME")

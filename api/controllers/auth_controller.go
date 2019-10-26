@@ -12,6 +12,10 @@ import (
 	"os"
 )
 
+func (server *Server) Home(w http.ResponseWriter, r *http.Request){
+	fmt.Println("Welcome to Mercury")
+}
+
 func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
 	user := &models.User{}
 
