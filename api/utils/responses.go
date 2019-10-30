@@ -15,6 +15,7 @@ return map[string]interface{} {"status" : status, "message" : message}
 func Respond(w http.ResponseWriter, statusCode int, data interface{})  {
 	w.WriteHeader(statusCode)
 	w.Header().Add("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	_ = json.NewEncoder(w).Encode(data)
 }
 

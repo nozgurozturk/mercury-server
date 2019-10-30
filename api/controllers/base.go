@@ -42,6 +42,7 @@ func (server *Server) Run(port string) {
 	server.Router = mux.NewRouter()
 	server.initializeRoutes()
 
+	server.Router.Use(mux.CORSMethodMiddleware(server.Router))
 	server.Router.Use(auth.JwtAuthentication)
 
 	fmt.Println("🚀 on " + port)
