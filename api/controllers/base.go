@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nozgurozturk/startpage_server/api/auth"
 	"github.com/nozgurozturk/startpage_server/api/models"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 	"os"
@@ -42,11 +43,12 @@ func (server *Server) Run(port string) {
 	server.Router = mux.NewRouter()
 	server.initializeRoutes()
 
-	server.Router.Use(mux.CORSMethodMiddleware(server.Router))
 	server.Router.Use(auth.JwtAuthentication)
 
+	c := cors.New(cors.Options{AllowedOrigins:[]string{"*"},AllowedMethods:[]string{"GET", "POST", "PUT", "DELETE"}})
+
 	fmt.Println("🚀 on " + port)
-	log.Fatal(http.ListenAndServe(port, server.Router))
+	log.Fatal(http.ListenAndServe(port, c.Handler(server.Router)))
 }
 
 

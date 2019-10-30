@@ -25,9 +25,7 @@ func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp,err := server.SignIn(user.Email, user.Password)
-	if r.Method == http.MethodOptions {
-		return
-	}
+
 	utils.Respond(w, http.StatusOK, resp)
 }
 

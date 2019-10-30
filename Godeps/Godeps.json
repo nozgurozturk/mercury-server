@@ -59,6 +59,11 @@
 			"Rev": "931b5ae4c24e6810c8c82ab4734904de3df1c3dc"
 		},
 		{
+			"ImportPath": "github.com/rs/cors",
+			"Comment": "v1.7.0-1-gdcbccb7",
+			"Rev": "dcbccb7124436e762b64d66b25c0fd80da52119a"
+		},
+		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
 			"Rev": "af544f31c8ac5794d2134b792e9eb714d9d8f9ce"
 		},
