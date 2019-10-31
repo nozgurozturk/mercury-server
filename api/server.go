@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 	"github.com/joho/godotenv"
-	"github.com/nozgurozturk/startpage_server/api/controllers"
+	"github.com/nozgurozturk/mercury-server/api/controllers"
 	"os"
 )
 

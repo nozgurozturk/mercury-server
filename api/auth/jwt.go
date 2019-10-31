@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/nozgurozturk/startpage_server/api/models"
-	"github.com/nozgurozturk/startpage_server/api/utils"
+	"github.com/nozgurozturk/mercury-server/api/models"
+	"github.com/nozgurozturk/mercury-server/api/utils"
 	"net/http"
 	"os"
 	"strings"
