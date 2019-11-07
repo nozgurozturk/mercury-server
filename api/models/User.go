@@ -6,7 +6,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
-	"os"
 	"time"
 )
 
@@ -68,12 +67,6 @@ func (u *User) SaveUser(db *gorm.DB) (*User, error) {
 	if err != nil {
 		return &User{}, err
 	}
-	//Create new JWT token for the newly registered account
-	tk := &Token{UserID: u.ID}
-	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-	tokenString, _ := token.SignedString([]byte(os.Getenv("API_SECRET")))
-	u.Token = tokenString
-
 	return u, nil
 }
 func (u *User) FindAllUsers(db *gorm.DB) (*[]User, error) {

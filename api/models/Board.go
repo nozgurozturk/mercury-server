@@ -45,9 +45,9 @@ func (b *Board) FindAllBoard(db *DB, uid uint32) (*[]Board, error) {
 	return &boards, err
 }
 
-func (b *Board) FindBoard(db *DB, bid uint32) (*Board, error) {
+func (b *Board) FindBoard(db *DB, bid uint32, uid uint32) (*Board, error) {
 	var err error
-	err = db.Preload("Items").First(&b, bid).Error
+	err = db.Preload("Items").Where("user_id = ? ", uid).First(&b, bid).Error
 	if err != nil {
 		return &Board{}, err
 	}
@@ -57,16 +57,16 @@ func (b *Board) FindBoard(db *DB, bid uint32) (*Board, error) {
 	return b, nil
 }
 
-func (b *Board) UpdateBoard(db *DB, bid uint32) (*Board, error) {
+func (b *Board) UpdateBoard(db *DB, bid uint32, uid uint32) (*Board, error) {
 	var err error
 
-	db = db.Debug().Model(Board{}).Where("id = ?", bid).First(&Board{}).UpdateColumns(
+	db = db.Debug().Model(Board{}).Where("id = ? AND user_id = ? ", bid, uid).First(&Board{}).UpdateColumns(
 		map[string]interface{}{
 			"name":      b.Name,
 			"update_at": Now(),
 		},
 	)
-	err = db.Debug().Model(&Board{}).Where("id = ?", bid).First(&b).Error
+	err = db.Debug().Model(&Board{}).Where("id = ? AND user_id = ? ", bid, uid).First(&b).Error
 	if err != nil {
 		return &Board{}, db.Error
 	}
@@ -74,9 +74,9 @@ func (b *Board) UpdateBoard(db *DB, bid uint32) (*Board, error) {
 	return b, nil
 }
 
-func (b *Board) DeleteBoard(db *DB, bid uint32) (int64, error) {
+func (b *Board) DeleteBoard(db *DB, bid uint32, uid uint32) (int64, error) {
 
-	db = db.Debug().Model(&Board{}).Where("id = ? ", bid).First(&b).Delete(&Board{})
+	db = db.Debug().Model(&Board{}).Where("id = ? AND user_id = ? ", bid, uid).First(&b).Delete(&Board{})
 	if db.Error != nil {
 		if IsRecordNotFoundError(db.Error) {
 			return 0, New("board not Found")

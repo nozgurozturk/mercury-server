@@ -59,13 +59,14 @@ func (server *Server) GetBoards (w http.ResponseWriter, r *http.Request){
 
 func (server *Server) GetBoard (w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
+	uid := r.Context().Value("user").(uint32)
 	bid, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
 		utils.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
 	board := models.Board{}
-	selectedBoard, err := board.FindBoard(server.DB, uint32(bid))
+	selectedBoard, err := board.FindBoard(server.DB, uint32(bid), uid)
 	if err != nil {
 		utils.ERROR(w, http.StatusBadRequest, err)
 		return
@@ -75,6 +76,8 @@ func (server *Server) GetBoard (w http.ResponseWriter, r *http.Request){
 
 func (server *Server) UpdateBoard (w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
+	uid := r.Context().Value("user").(uint32)
+
 	bid, err := strconv.ParseInt(vars["id"], 10,64)
 	if err != nil {
 		utils.ERROR(w, http.StatusBadRequest, err)
@@ -104,7 +107,7 @@ func (server *Server) UpdateBoard (w http.ResponseWriter, r *http.Request){
 		utils.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	updatedBoard, err := boardUpdate.UpdateBoard(server.DB, uint32(bid))
+	updatedBoard, err := boardUpdate.UpdateBoard(server.DB, uint32(bid), uid)
 	if err != nil {
 		formattedError := utils.ErrorType(err.Error())
 		utils.ERROR(w, http.StatusInternalServerError, formattedError)
@@ -115,6 +118,7 @@ func (server *Server) UpdateBoard (w http.ResponseWriter, r *http.Request){
 
 func (server *Server) DeleteBoard (w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
+	uid := r.Context().Value("user").(uint32)
 
 	bid, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
@@ -129,7 +133,7 @@ func (server *Server) DeleteBoard (w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	_, err = board.DeleteBoard(server.DB, uint32(bid))
+	_, err = board.DeleteBoard(server.DB, uint32(bid), uid)
 	if err != nil {
 		utils.ERROR(w, http.StatusBadRequest, err)
 		return

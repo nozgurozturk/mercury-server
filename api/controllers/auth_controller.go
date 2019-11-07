@@ -10,10 +10,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"os"
+	"time"
 )
 
 func (server *Server) Home(w http.ResponseWriter, r *http.Request){
-	fmt.Println("Welcome to Mercury")
+	resp := utils.Message(true, "Welcome to Mercury")
+	utils.Respond(w, http.StatusOK, resp)
 }
 
 func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
@@ -50,10 +52,13 @@ func (server *Server) SignIn(email, password string) (map[string]interface{}, er
 	user.Password = ""
 
 	//Create JWT token
-	tk := &models.Token{UserID: user.ID}
+	expirationTime := time.Now().Add(24*7* time.Hour)
+
+	tk := &models.Token{user.ID, jwt.StandardClaims{ExpiresAt: expirationTime.Unix()}}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(os.Getenv("API_SECRET")))
 	user.Token = tokenString //Store the token in the response
+
 
 	resp := utils.Message(true, "Logged In")
 	resp["user"] = user
