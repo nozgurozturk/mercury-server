@@ -73,6 +73,7 @@ func (i *Item) UpdateItem(db *gorm.DB, iid uint32) (*Item, error) {
 	db = db.Debug().Model(Item{}).Where("id = ?", iid).First(&Item{}).UpdateColumns(
 		map[string]interface{}{
 			"name":      i.Name,
+			"order_number": i.OrderNumber,
 			"update_at": time.Now(),
 		},
 	)
