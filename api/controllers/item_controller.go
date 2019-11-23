@@ -20,7 +20,9 @@ func (server *Server) CreateItem (w http.ResponseWriter, r *http.Request){
 		utils.ERROR(w , http.StatusUnprocessableEntity, err)
 		return
 	}
+
 	item := models.Item{}
+
 
 	err = json.Unmarshal(body, &item)
 	if err != nil{
@@ -32,6 +34,8 @@ func (server *Server) CreateItem (w http.ResponseWriter, r *http.Request){
 		utils.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
+	orderNumber := item.BeforeSaveItem(server.DB)
+	item.OrderNumber = orderNumber
 	itemCreated , err := item.SaveItem(server.DB)
 	if err != nil {
 		formattedError := utils.ErrorType(err.Error())
