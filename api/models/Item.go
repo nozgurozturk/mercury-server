@@ -32,7 +32,7 @@ func (i *Item)BeforeSaveItem(db *gorm.DB) uint32{
 	var count uint32
 	db.Model(&Item{}).Where("board_id = ?", &i.BoardID).Count(&count)
 	fmt.Println(count)
-	return count+1
+	return count
 }
 
 

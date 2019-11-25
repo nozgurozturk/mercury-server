@@ -7,12 +7,12 @@ import (
 )
 
 type Board struct {
-	ID        uint32 `gorm:"primary_key;auto_increment" json:"id"`
-	UserID    uint32 `gorm:"index;" json:"user_id"`
-	Name      string `gorm:"type:varchar(40);not_null;" json:"name"`
-	Items     []Item  `gorm:"foreignkey:BoardID;association_foreignkey:ID" json:"items"`
-	CreatedAt Time   `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt Time   `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	ID          uint32 `gorm:"primary_key;auto_increment" json:"id"`
+	WorkspaceID uint32 `gorm:"index;not_null;" json:"workspace_id"`
+	Name        string `gorm:"type:varchar(40);not_null;" json:"name"`
+	Items       []Item `gorm:"foreignkey:BoardID;association_foreignkey:ID" json:"items"`
+	CreatedAt   Time   `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt   Time   `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
 func (b *Board) Validate() error {
@@ -20,8 +20,8 @@ func (b *Board) Validate() error {
 	if b.Name == "" {
 		return New("required name")
 	}
-	if b.UserID < 1 {
-		return New("required owner")
+	if b.WorkspaceID < 1 {
+		return New("required workspace")
 	}
 	return nil
 }
@@ -35,10 +35,10 @@ func (b *Board) SaveBoard(db *DB) (*Board, error) {
 	return b, nil
 }
 
-func (b *Board) FindAllBoard(db *DB, uid uint32) (*[]Board, error) {
+func (b *Board) FindAllBoard(db *DB, wid uint32) (*[]Board, error) {
 	var err error
 	var boards []Board
-	err = db.Debug().Preload("Items").Model(&User{ID:uid}).Related(&boards).Error
+	err = db.Debug().Preload("Items").Model(&Workspace{ID: wid}).Related(&boards).Error
 	if err != nil {
 		return &[]Board{}, err
 	}

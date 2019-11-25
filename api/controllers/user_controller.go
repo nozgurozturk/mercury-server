@@ -44,21 +44,21 @@ func (server *Server) SignUp(w http.ResponseWriter, r *http.Request){
 }
 
 func (server *Server) GetUser (w http.ResponseWriter, r *http.Request){
-	vars := mux.Vars(r)
+	//vars := mux.Vars(r)
 	userID := r.Context().Value("user").(uint32)
 
-	uid ,err := strconv.ParseInt(vars["id"], 10, 32)
-	if err != nil{
-		utils.ERROR(w, http.StatusBadRequest, err)
-		return
-	}
-	if userID != uint32(uid){
-		utils.ERROR(w, http.StatusForbidden, err)
-		return
-	}
+	//uid ,err := strconv.ParseInt(vars["id"], 10, 32)
+	//if err != nil{
+	//	utils.ERROR(w, http.StatusBadRequest, err)
+	//	return
+	//}
+	//if userID != uint32(uid){
+	//	utils.ERROR(w, http.StatusForbidden, err)
+	//	return
+	//}
 
 	user := models.User{}
-	selectedUser, err :=user.FindUser(server.DB, uint32(uid))
+	selectedUser, err :=user.FindUser(server.DB, userID)
 
 	if err != nil{
 		utils.ERROR(w, http.StatusBadRequest, err)

@@ -15,15 +15,16 @@ import (
 
 func (server *Server) CreateBoard (w http.ResponseWriter, r *http.Request){
 
-
+	vars := mux.Vars(r)
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil{
 		utils.ERROR(w , http.StatusUnprocessableEntity, err)
 		return
 	}
-	user := r.Context().Value("user").(uint32)
+	//user := r.Context().Value("user").(uint32)
 	board := &models.Board{}
-	board.UserID = user
+	wid, err := strconv.ParseInt(vars["id"], 10, 64)
+	board.WorkspaceID = uint32(wid)
 	err = json.Unmarshal(body, board)
 	if err != nil{
 		utils.ERROR(w, http.StatusUnprocessableEntity, err)
@@ -34,7 +35,6 @@ func (server *Server) CreateBoard (w http.ResponseWriter, r *http.Request){
 		utils.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-
 	boardCreated , err := board.SaveBoard(server.DB)
 	if err != nil {
 		formattedError := utils.ErrorType(err.Error())
@@ -46,10 +46,12 @@ func (server *Server) CreateBoard (w http.ResponseWriter, r *http.Request){
 }
 
 func (server *Server) GetBoards (w http.ResponseWriter, r *http.Request){
+	vars := mux.Vars(r)
+	wid, err := strconv.ParseInt(vars["id"], 10, 64)
 	board := &models.Board{}
-	uid := r.Context().Value("user").(uint32)
+	//uid := r.Context().Value("user").(uint32)
 	fmt.Println(r)
-	boards, err := board.FindAllBoard(server.DB, uid)
+	boards, err := board.FindAllBoard(server.DB, uint32(wid))
 	if err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
 		return

@@ -15,14 +15,14 @@ type Token struct {
 }
 
 type User struct {
-	ID        uint32    `gorm:"primary_key;auto_increment;" json:"id"`
-	Name      string    `gorm:"type:varchar(40);not_null;" json:"name"`
-	Email     string    `gorm:"type:varchar(120);not_null;unique;" json:"email"`
-	Password  string    `gorm:"type:varchar(60);not_null;" json:"password"`
-	Token     string    `json:"token";sql:"-"`
-	Boards    []Board   `gorm:"foreignkey:UserID;association_foreignkey:ID" json:"boards"`
-	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	ID         uint32      `gorm:"primary_key;auto_increment;" json:"id"`
+	Name       string      `gorm:"type:varchar(40);not_null;" json:"name"`
+	Email      string      `gorm:"type:varchar(120);not_null;unique;" json:"email"`
+	Password   string      `gorm:"type:varchar(60);not_null;" json:"password"`
+	Token      string      `json:"token";sql:"-"`
+	Workspaces []Workspace `gorm:"many2many:user_workspaces;" json:"workspaces"`
+	CreatedAt  time.Time   `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt  time.Time   `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
 func HashPass(password string) ([]byte, error) {
@@ -45,19 +45,19 @@ func (u *User) BeforeSave() error {
 
 func (u *User) Validate() error {
 
-		if u.Name == "" {
-			return errors.New("required name")
-		}
-		if u.Password == "" {
-			return errors.New("required password")
-		}
-		if u.Email == "" {
-			return errors.New("required email")
-		}
-		if err := checkmail.ValidateFormat(u.Email); err != nil {
-			return errors.New("invalid email")
-		}
-		return nil
+	if u.Name == "" {
+		return errors.New("required name")
+	}
+	if u.Password == "" {
+		return errors.New("required password")
+	}
+	if u.Email == "" {
+		return errors.New("required email")
+	}
+	if err := checkmail.ValidateFormat(u.Email); err != nil {
+		return errors.New("invalid email")
+	}
+	return nil
 }
 
 func (u *User) SaveUser(db *gorm.DB) (*User, error) {
@@ -72,7 +72,7 @@ func (u *User) SaveUser(db *gorm.DB) (*User, error) {
 func (u *User) FindAllUsers(db *gorm.DB) (*[]User, error) {
 	var err error
 	var users []User
-	err = db.Debug().Model(&User{}).Find(&users).Error
+	err = db.Debug().Preload("Workspaces").Model(&User{}).Find(&users).Error
 	if err != nil {
 		return &[]User{}, err
 	}
@@ -81,7 +81,9 @@ func (u *User) FindAllUsers(db *gorm.DB) (*[]User, error) {
 
 func (u *User) FindUser(db *gorm.DB, uid uint32) (*User, error) {
 	var err error
-	err = db.Debug().Model(User{}).Where("id = ?", uid).First(&u).Error
+
+	//err = db.Preload("Boards").Preload("Items").Model(&User{ID:uid}).Related(&Workspace{}).Error
+	err = db.Debug().Preload("Workspaces").Model(&User{ID:uid}).First(&u).Error
 	if err != nil {
 		return &User{}, err
 	}
@@ -93,7 +95,6 @@ func (u *User) FindUser(db *gorm.DB, uid uint32) (*User, error) {
 
 func (u *User) UpdateUser(db *gorm.DB, uid uint32) (*User, error) {
 	var err error
-
 
 	db = db.Debug().Model(User{}).Where("id = ?", uid).First(&u).UpdateColumns(
 		map[string]interface{}{

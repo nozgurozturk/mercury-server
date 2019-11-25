@@ -37,7 +37,7 @@ func (server *Server) Initialize() {
 	if err != nil {
 		fmt.Print(err)
 	}
-	server.DB.Debug().AutoMigrate(&models.User{}, &models.Board{}, &models.Item{}, &models.Link{})
+	server.DB.Debug().AutoMigrate(&models.User{}, &models.Board{}, &models.Item{}, &models.Link{}, &models.Workspace{})
 }
 
 func (server *Server) Run(port string) {
@@ -46,7 +46,7 @@ func (server *Server) Run(port string) {
 	server.initializeRoutes()
 	server.Router.Use(auth.JwtAuthentication)
 
-	c := cors.New(cors.Options{AllowedOrigins: []string{"http://localhost:3000"},
+	c := cors.New(cors.Options{AllowedOrigins: []string{"*"},
 		AllowedHeaders: []string{"Content-Type", "Authorization"},
 		AllowedMethods: []string{"GET", "POST", "DELETE", "PUT"},
 		Debug: true}).Handler(server.Router)

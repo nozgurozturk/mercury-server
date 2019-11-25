@@ -3,6 +3,7 @@ package controllers
 func (server *Server) initializeRoutes() {
 	server.loginRoute()
 	server.userRoutes()
+	server.workspaceRoutes()
 	server.boardRoutes()
 	server.itemRoutes()
 	server.linkRoutes()
@@ -17,16 +18,26 @@ func (server *Server) loginRoute() {
 
 func (server *Server) userRoutes() {
 
-	server.Router.HandleFunc("/user/{id}", server.GetUser).Methods("GET")
+	server.Router.HandleFunc("/user", server.GetUser).Methods("GET")
 	server.Router.HandleFunc("/user/{id}", server.UpdateUser).Methods("PUT")
 	server.Router.HandleFunc("/user/{id}", server.DeleteUser).Methods("DELETE")
+
+}
+
+func (server *Server) workspaceRoutes() {
+
+	server.Router.HandleFunc("/workspace", server.CreateWorkspace).Methods("POST")
+	server.Router.HandleFunc("/workspace", server.GetWorkspaces).Methods("GET")
+	server.Router.HandleFunc("/workspace/{id}", server.GetWorkspace).Methods("GET")
+	server.Router.HandleFunc("/workspace/{id}", server.UpdateWorkspace).Methods("PUT")
+	server.Router.HandleFunc("/workspace/{id}", server.DeleteWorkspace).Methods("DELETE")
 
 }
 
 func (server *Server) boardRoutes() {
 
 	server.Router.HandleFunc("/board", server.CreateBoard).Methods("POST")
-	server.Router.HandleFunc("/board", server.GetBoards).Methods("GET")
+	server.Router.HandleFunc("/workspace/{id}/board", server.GetBoards).Methods("GET")
 	server.Router.HandleFunc("/board/{id}", server.GetBoard).Methods("GET")
 	server.Router.HandleFunc("/board/{id}", server.UpdateBoard).Methods("PUT")
 	server.Router.HandleFunc("/board/{id}", server.DeleteBoard).Methods("DELETE")
